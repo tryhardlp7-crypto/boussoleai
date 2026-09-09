@@ -6,6 +6,13 @@
 <title>Boussole — Screening d'actions &amp; budget</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+  // Si le premier CDN a été bloqué (bloqueur de script, réseau restrictif),
+  // on tente un second CDN avant que le reste de la page ne s'exécute.
+  if(typeof Chart === "undefined"){
+    document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"><\/script>');
+  }
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -371,6 +378,13 @@
 
   async function chargerMarches(){
     const zoneChargement = document.getElementById("chargement-marche");
+
+    if(typeof Chart === "undefined"){
+      zoneChargement.textContent = "Le graphique n'a pas pu se charger (bibliothèque Chart.js bloquée par le réseau ou un bloqueur de script). Le reste du site fonctionne normalement.";
+      console.error("Chart.js indisponible : les deux CDN ont échoué à charger.");
+      return;
+    }
+
     try{
       const reponse = await fetch(`${API_URL}/api/marches?limite=8`);
       if(!reponse.ok) throw new Error("Réponse serveur invalide");
@@ -438,17 +452,24 @@
 
   async function chargerOpportunites(){
     const corps = document.getElementById("corps-tableau-opportunites");
+    let donnees;
     try{
       const reponse = await fetch(`${API_URL}/api/opportunites`);
       if(!reponse.ok) throw new Error("Réponse serveur invalide");
-      const donnees = await reponse.json();
-      toutesLesEntreprises = donnees.resultats || [];
+      donnees = await reponse.json();
+    }catch(erreur){
+      corps.innerHTML = `<tr><td colspan="7" style="color:var(--coral);">Impossible de contacter le serveur Python. Vérifiez l'URL API_URL et que le service Render est démarré.</td></tr>`;
+      console.error("Erreur réseau /api/opportunites :", erreur);
+      return;
+    }
 
+    try{
+      toutesLesEntreprises = donnees.resultats || [];
       remplirFiltreSecteur();
       appliquerFiltresEtAfficher();
     }catch(erreur){
-      corps.innerHTML = `<tr><td colspan="7" style="color:var(--coral);">Impossible de contacter le serveur Python.</td></tr>`;
-      console.error(erreur);
+      corps.innerHTML = `<tr><td colspan="7" style="color:var(--coral);">Les données ont bien été reçues mais un bug d'affichage est survenu. Détail dans la console.</td></tr>`;
+      console.error("Erreur d'affichage du tableau :", erreur);
     }
   }
 
@@ -475,11 +496,21 @@
     return "#E2725B";
   }
 
+  // Formate un nombre en toute sécurité : gère null, undefined, NaN et les
+  // chaînes de caractères éventuelles (ex: valeur JSON mal typée), pour
+  // éviter tout "Cannot read properties of undefined (reading 'toFixed')".
+  function formaterNombre(valeur, decimales){
+    const nombre = typeof valeur === "number" ? valeur : parseFloat(valeur);
+    if(valeur === null || valeur === undefined || Number.isNaN(nombre)) return null;
+    return nombre.toFixed(decimales);
+  }
+
   function formaterVariation(valeur){
-    if(valeur === null || valeur === undefined) return `<span class="variation" style="color:var(--text-muted)">n/d</span>`;
-    const classe = valeur >= 0 ? "pos" : "neg";
-    const signe = valeur >= 0 ? "+" : "";
-    return `<span class="variation ${classe}">${signe}${valeur.toFixed(1)} %</span>`;
+    const formate = formaterNombre(valeur, 1);
+    if(formate === null) return `<span class="variation" style="color:var(--text-muted)">n/d</span>`;
+    const classe = parseFloat(formate) >= 0 ? "pos" : "neg";
+    const signe = parseFloat(formate) >= 0 ? "+" : "";
+    return `<span class="variation ${classe}">${signe}${formate} %</span>`;
   }
 
   function appliquerFiltresEtAfficher(){
@@ -520,16 +551,16 @@
       <tr class="ligne-entreprise" data-symbole="${e.symbole}" data-nom="${e.nom}">
         <td>
           <div class="entreprise-nom">${e.nom}</div>
-          <div class="entreprise-sym">${e.symbole} · ${e.prix_actuel} $</div>
+          <div class="entreprise-sym">${e.symbole} · ${formaterNombre(e.prix_actuel, 2) ?? "n/d"} $</div>
         </td>
         <td class="colonne-secteur entreprise-secteur">${e.secteur || "—"}</td>
         <td>${formaterVariation(e.rendement_3m)}</td>
         <td>${formaterVariation(e.rendement_6m)}</td>
-        <td class="variation">${e.volatilite_annualisee !== null ? e.volatilite_annualisee.toFixed(1) + " %" : "n/d"}</td>
-        <td><span class="statut-chip ${classeStatut(e.niveau)}">${e.niveau}</span></td>
+        <td class="variation">${(() => { const v = formaterNombre(e.volatilite_annualisee, 1); return v === null ? "n/d" : v + " %"; })()}</td>
+        <td><span class="statut-chip ${classeStatut(e.niveau)}">${e.niveau || "Neutre"}</span></td>
         <td>
-          <span class="variation">${e.score}</span>
-          <div class="score-barre"><div class="fill" style="width:${e.score}%; background:${couleurScore(e.score)}"></div></div>
+          <span class="variation">${typeof e.score === "number" ? e.score : "n/d"}</span>
+          <div class="score-barre"><div class="fill" style="width:${typeof e.score === "number" ? e.score : 0}%; background:${couleurScore(e.score || 0)}"></div></div>
         </td>
       </tr>
       <tr class="ligne-actualites" id="actu-${e.symbole}">
@@ -564,8 +595,9 @@
       if(donnees.nb_articles_analyses === 0){
         contenu.innerHTML = `<span style="color:var(--text-muted)">Aucune actualité récente trouvée pour ${nom} (14 derniers jours).</span>`;
       }else{
-        const scoreTexte = donnees.score >= 0.1 ? "plutôt positif" : donnees.score <= -0.1 ? "plutôt négatif" : "neutre";
-        let html = `<div>Sentiment des actualités récentes : <strong>${scoreTexte}</strong> (${donnees.score.toFixed(2)}, confiance ${donnees.confiance}, ${donnees.nb_articles_analyses} articles analysés)</div>`;
+        const scoreValeur = typeof donnees.score === "number" ? donnees.score : 0;
+        const scoreTexte = scoreValeur >= 0.1 ? "plutôt positif" : scoreValeur <= -0.1 ? "plutôt négatif" : "neutre";
+        let html = `<div>Sentiment des actualités récentes : <strong>${scoreTexte}</strong> (${formaterNombre(scoreValeur, 2) ?? "0.00"}, confiance ${donnees.confiance}, ${donnees.nb_articles_analyses} articles analysés)</div>`;
         if(donnees.categories_a_risque.length){
           html += `<div style="margin-top:8px; color:var(--coral)">Thèmes de risque détectés : ${donnees.categories_a_risque.join(", ")}</div>`;
         }
