@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boussole — Aide à la décision financière</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #0F1B2D;
+    --surface: #16263D;
+    --surface-alt: #1D3049;
+    --border: rgba(237, 239, 242, 0.10);
+    --border-strong: rgba(237, 239, 242, 0.18);
+    --text: #EDEFF2;
+    --text-muted: #90A2B7;
+    --emerald: #3FA173;
+    --emerald-bright: #4CB783;
+    --emerald-soft: rgba(63, 161, 115, 0.14);
+    --gold: #E8B860;
+    --gold-soft: rgba(232, 184, 96, 0.14);
+    --coral: #E2725B;
+    --coral-soft: rgba(226, 114, 91, 0.14);
+    --blue: #7FA8D9;
+
+    --font-display: 'Fraunces', serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(63,161,115,0.09), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(232,184,96,0.05), transparent 55%);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a{ color: inherit; }
+  ::selection{ background: var(--emerald); color: #06120C; }
+
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  .wrap{ max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+
+  /* -------------------------- EN-TÊTE -------------------------- */
+  header{ padding: 34px 0 0; }
+  .brand{ display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; }
+  .brand .mark{ width: 26px; height: 26px; border: 1.5px solid var(--gold); border-radius: 50%; position: relative; flex-shrink: 0; }
+  .brand .mark::after{ content: ""; position: absolute; left: 50%; top: 50%; width: 1.5px; height: 9px; background: var(--gold); transform: translate(-50%,-50%) rotate(35deg); }
+  .brand .statut-connexion{
+    margin-left: auto; display: flex; align-items: center; gap: 7px;
+    font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);
+  }
+  .brand .statut-connexion .point{ width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
+  .brand .statut-connexion.ok .point{ background: var(--emerald); }
+  .brand .statut-connexion.erreur .point{ background: var(--coral); }
+  header .wrap{ display: flex; }
+
+  /* -------------------------- HÉRO -------------------------- */
+  .hero{
+    padding: 60px 0 52px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 48px;
+    align-items: end;
+  }
+  .hero h1{
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 4vw, 3rem);
+    line-height: 1.15;
+    margin: 0 0 16px;
+    max-width: 17ch;
+    color: var(--text);
+  }
+  .hero p{ color: var(--text-muted); font-size: 1.02rem; max-width: 46ch; margin: 0; }
+  .hero-side{ border-left: 1px solid var(--border); padding-left: 28px; }
+  .hero-side .label{ font-size: 0.82rem; color: var(--text-muted); margin: 0 0 6px; }
+  .hero-side .figure{ font-family: var(--font-mono); font-size: 2rem; color: var(--gold); }
+  .hero-side .sub{ font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+  /* -------------------------- SECTIONS -------------------------- */
+  section.block{ padding: 54px 0; border-bottom: 1px solid var(--border); }
+  section.block:last-of-type{ border-bottom: none; }
+
+  .block-head{ display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+  .block-head h2{ font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; margin: 0; }
+  .block-head .note{ color: var(--text-muted); font-size: 0.88rem; max-width: 40ch; }
+
+  .panel{ background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald); border-radius: 6px; padding: 26px; }
+  .panel.gold{ border-top-color: var(--gold); }
+
+  /* -------------------------- GRAPHIQUE -------------------------- */
+  .chart-toolbar{ display: flex; justify-content: flex-end; margin-bottom: 14px; }
+  .toggle-ma{ display: flex; align-items: center; gap: 8px; font-size: 0.83rem; color: var(--text-muted); cursor: pointer; user-select: none; }
+  .toggle-ma input{ accent-color: var(--emerald); width: 14px; height: 14px; cursor: pointer; }
+
+  .chart-holder{
+    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald);
+    border-radius: 6px; padding: 24px 20px 12px; position: relative; height: 380px;
+  }
+  #chargement-marche{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono); text-align: center; padding: 0 30px; }
+
+  /* -------------------------- TABLEAU LEDGER -------------------------- */
+  table.ledger{ width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  table.ledger th{ text-align: left; font-weight: 500; color: var(--text-muted); padding: 0 14px 12px 0; border-bottom: 1px solid var(--border-strong); font-size: 0.8rem; }
+  table.ledger td{ padding: 14px 14px 14px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.ledger tr:last-child td{ border-bottom: none; }
+  .entreprise-nom{ font-weight: 600; }
+  .entreprise-sym{ color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; }
+  .variation{ font-family: var(--font-mono); }
+  .variation.pos{ color: var(--emerald); }
+  .variation.neg{ color: var(--coral); }
+  .commentaire{ color: var(--text-muted); font-size: 0.86rem; max-width: 34ch; }
+
+  .statut-chip{ display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; }
+  .statut-chip.Opportunité{ background: var(--emerald-soft); color: var(--emerald); }
+  .statut-chip.Anomalie{ background: var(--coral-soft); color: var(--coral); }
+  .statut-chip.Stable{ background: var(--gold-soft); color: var(--gold); }
+
+  /* -------------------------- MODULE BUDGET -------------------------- */
+  .budget-grid{ display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 24px; align-items: start; }
+
+  .champ{ margin-bottom: 16px; }
+  .champ label{ display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+  .champ input{ width: 100%; background: var(--surface-alt); border: 1px solid var(--border-strong); border-radius: 4px; padding: 10px 12px; color: var(--text); font-family: var(--font-mono); font-size: 0.95rem; }
+  .champ input:focus{ border-color: var(--emerald); }
+  .champ input::placeholder{ color: rgba(144,162,183,0.5); }
+  .champ-revenu input{ font-size: 1.1rem; }
+  .champ-aide{ font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 16px; }
+
+  .separateur-form{ border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .sous-titre-form{ font-size: 0.82rem; color: var(--text-muted); margin: 0 0 14px; text-transform: none; }
+
+  .grille-depenses{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+
+  button.calculer{
+    width: 100%; margin-top: 8px; background: var(--emerald); color: #06140D; border: none;
+    border-radius: 4px; padding: 13px 18px; font-family: var(--font-body); font-weight: 600;
+    font-size: 0.95rem; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease;
+  }
+  button.calculer:hover{ background: var(--emerald-bright); }
+  button.calculer:active{ transform: scale(0.99); }
+  button.calculer:disabled{ opacity: 0.6; cursor: wait; }
+
+  #resultats{ opacity: 0; transform: translateY(6px); transition: opacity 0.4s ease, transform 0.4s ease; }
+  #resultats.visible{ opacity: 1; transform: translateY(0); }
+
+  .placeholder-resultats{ color: var(--text-muted); font-size: 0.92rem; display: flex; align-items: center; height: 100%; min-height: 260px; }
+
+  /* Score de santé */
+  .score-bloc{ display: flex; align-items: center; gap: 22px; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--border); }
+  .score-jauge{ position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+  .score-jauge svg{ transform: rotate(-90deg); }
+  .score-jauge .fond{ fill: none; stroke: var(--surface-alt); stroke-width: 8; }
+  .score-jauge .valeur{ fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+  .score-jauge .nombre{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 1.25rem; }
+  .score-texte .niveau{ font-family: var(--font-display); font-size: 1.25rem; margin: 0 0 3px; }
+  .score-texte .sous{ font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
+  .solde-ligne{ display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .solde-ligne .label{ color: var(--text-muted); font-size: 0.88rem; }
+  .solde-ligne .valeur{ font-family: var(--font-mono); font-size: 1.5rem; }
+  .solde-ligne .valeur.pos{ color: var(--emerald); }
+  .solde-ligne .valeur.neg{ color: var(--coral); }
+
+  .sous-section-titre{ font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; }
+
+  .repartition{ margin-bottom: 20px; }
+  .repartition-item{ margin-bottom: 12px; }
+  .repartition-item .top{ display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; }
+  .repartition-item .top .val{ font-family: var(--font-mono); color: var(--text-muted); }
+  .barre{ height: 6px; background: var(--surface-alt); border-radius: 100px; overflow: hidden; }
+  .barre .fill{ height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+  .fill.besoins{ background: var(--gold); }
+  .fill.envies{ background: var(--blue); }
+  .fill.epargne{ background: var(--emerald); }
+  .fill.urgence{ background: var(--emerald); }
+
+  .fonds-urgence{ margin-bottom: 20px; }
+  .fonds-urgence .top{ display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
+  .fonds-urgence .top .val{ font-family: var(--font-mono); color: var(--text-muted); }
+
+  .projection{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .projection .carte{ background: var(--surface-alt); border-radius: 5px; padding: 14px; }
+  .projection .carte .label{ font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
+  .projection .carte .valeur{ font-family: var(--font-mono); font-size: 1.15rem; color: var(--emerald); }
+
+  table.diagnostics{ width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-bottom: 20px; }
+  table.diagnostics th{ text-align: left; color: var(--text-muted); font-weight: 500; padding: 0 8px 8px 0; border-bottom: 1px solid var(--border-strong); font-size: 0.76rem; }
+  table.diagnostics td{ padding: 8px 8px 8px 0; border-bottom: 1px solid var(--border); }
+  table.diagnostics tr:last-child td{ border-bottom: none; }
+  .pastille{ display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
+  .pastille.ok{ background: var(--emerald); }
+  .pastille.depassement{ background: var(--coral); }
+  .pastille.na{ background: var(--text-muted); }
+
+  .liste-messages{ list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
+  .liste-messages li{ padding: 10px 12px; border-radius: 4px; font-size: 0.86rem; line-height: 1.45; }
+  .liste-messages.conseils li{ background: var(--emerald-soft); color: #B7E3CD; }
+  .liste-messages.alertes li{ background: var(--coral-soft); color: #F3C3B8; }
+
+  .recommandation{ border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.9rem; color: var(--text-muted); }
+  .recommandation strong{ color: var(--gold); font-weight: 500; }
+
+  .erreur-api{ color: var(--coral); font-size: 0.86rem; margin-top: 10px; }
+
+  footer{ padding: 30px 0 50px; color: var(--text-muted); font-size: 0.82rem; }
+
+  @media (max-width: 800px){
+    .hero{ grid-template-columns: 1fr; }
+    .hero-side{ border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 20px; }
+    .budget-grid{ grid-template-columns: 1fr; }
+    .grille-depenses{ grid-template-columns: 1fr; }
+    .projection{ grid-template-columns: 1fr; }
+    table.ledger{ font-size: 0.85rem; }
+    .commentaire{ max-width: none; }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="wrap">
+      <div class="brand">
+        <span class="mark"></span>
+        Boussole
+        <span class="statut-connexion" id="statut-connexion"><span class="point"></span><span id="statut-connexion-texte">Connexion au serveur…</span></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <section class="hero">
+      <div>
+        <h1>Voyez clair dans vos finances, sans jargon.</h1>
+        <p>Boussole analyse vos revenus et vos dépenses avec des règles budgétaires transparentes, et vous montre le pouls des plus grandes entreprises du marché — tout est calculé par un moteur de règles Python, sans IA payante.</p>
+      </div>
+      <div class="hero-side">
+        <p class="label">Entreprises suivies</p>
+        <p class="figure" id="compteur-entreprises">6</p>
+        <p class="sub">Apple, Microsoft, Google, Amazon, NVIDIA, Meta</p>
+      </div>
+    </section>
+
+    <section class="block" id="marches">
+      <div class="block-head">
+        <h2>Le pouls des marchés</h2>
+        <p class="note">Trajectoires simulées sur 12 mois, générées par le serveur Python à titre pédagogique.</p>
+      </div>
+      <div class="chart-toolbar">
+        <label class="toggle-ma">
+          <input type="checkbox" id="case-moyenne-mobile">
+          Afficher la moyenne mobile 3 mois
+        </label>
+      </div>
+      <div class="chart-holder">
+        <div id="chargement-marche">Chargement des données…</div>
+        <canvas id="graphique-marche"></canvas>
+      </div>
+    </section>
+
+    <section class="block" id="opportunites">
+      <div class="block-head">
+        <h2>Opportunités &amp; anomalies</h2>
+        <p class="note">Détection statistique (z-score, ratio rendement/risque, moyennes mobiles) combinée à une analyse de vraies actualités récentes par thème de risque, calculée par le serveur.</p>
+      </div>
+      <div class="panel">
+        <table class="ledger">
+          <thead>
+            <tr><th>Entreprise</th><th>Statut</th><th>Variation</th><th>Analyse</th></tr>
+          </thead>
+          <tbody id="corps-tableau-opportunites">
+            <tr><td colspan="4" style="color:var(--text-muted);">Chargement de l'analyse…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="block" id="budget">
+      <div class="block-head">
+        <h2>Conseils budget</h2>
+        <p class="note">Renseignez votre revenu et vos dépenses mensuelles : l'analyse suit la règle du 50/30/20 et calcule un score de santé financière.</p>
+      </div>
+
+      <div class="budget-grid">
+
+        <form class="panel gold" id="formulaire-budget">
+          <div class="champ champ-revenu">
+            <label for="revenu">Revenu mensuel net (€)</label>
+            <input type="number" id="revenu" min="0" step="10" placeholder="ex : 2500" required>
+          </div>
+          <div class="champ">
+            <label for="epargne_actuelle">Épargne déjà constituée (€)</label>
+            <input type="number" id="epargne_actuelle" min="0" step="10" placeholder="0">
+          </div>
+          <p class="champ-aide">Sert à calculer votre fonds d'urgence et la projection d'épargne.</p>
+
+          <hr class="separateur-form">
+          <p class="sous-titre-form">Dépenses mensuelles par catégorie</p>
+
+          <div class="grille-depenses">
+            <div class="champ"><label for="logement">Logement</label><input type="number" id="logement" min="0" step="1" placeholder="0"></div>
+            <div class="champ"><label for="alimentation">Alimentation</label><input type="number" id="alimentation" min="0" step="1" placeholder="0"></div>
+            <div class="champ"><label for="transport">Transport</label><input type="number" id="transport" min="0" step="1" placeholder="0"></div>
+            <div class="champ"><label for="autres_essentiels">Autres essentiels</label><input type="number" id="autres_essentiels" min="0" step="1" placeholder="0"></div>
+            <div class="champ"><label for="loisirs">Loisirs</label><input type="number" id="loisirs" min="0" step="1" placeholder="0"></div>
+            <div class="champ"><label for="abonnements">Abonnements</label><input type="number" id="abonnements" min="0" step="1" placeholder="0"></div>
+          </div>
+
+          <button type="submit" class="calculer" id="bouton-calculer">Analyser mon budget</button>
+          <p class="erreur-api" id="erreur-api" style="display:none;"></p>
+        </form>
+
+        <div class="panel">
+          <div class="placeholder-resultats" id="placeholder-resultats">
+            Renseignez le formulaire et cliquez sur « Analyser mon budget » pour voir l'analyse apparaître ici.
+          </div>
+          <div id="resultats"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="wrap">
+    Boussole — démonstration pédagogique. Aucune donnée financière réelle n'est utilisée ; les analyses ne constituent pas un conseil financier professionnel.
+  </footer>
+
+<script>
+  // =====================================================================
+  // CONFIGURATION — à adapter à votre déploiement
+  // =====================================================================
+  // Une fois votre backend déployé sur Render, remplacez cette URL par
+  // celle de votre Web Service (visible en haut du tableau de bord Render,
+  // généralement sous la forme "https://votre-service.onrender.com").
+  const API_URL = "https://VOTRE-SERVICE-boussole-api.onrender.com";
+
+  // Pour tester en local avant de déployer, commentez la ligne ci-dessus et
+  // décommentez celle-ci (après avoir lancé `python app.py` en local) :
+  // const API_URL = "http://127.0.0.1:5000";
+
+  const PALETTE = ["#3FA173", "#E8B860", "#7FA8D9", "#E2725B", "#B98CD9", "#5FC4D0"];
+
+  // =====================================================================
+  // STATUT DE CONNEXION AU SERVEUR
+  // =====================================================================
+  function definirStatutConnexion(etat, texte){
+    const conteneur = document.getElementById("statut-connexion");
+    const libelle = document.getElementById("statut-connexion-texte");
+    conteneur.classList.remove("ok", "erreur");
+    if(etat) conteneur.classList.add(etat);
+    libelle.textContent = texte;
+  }
+
+  // =====================================================================
+  // 1. GRAPHIQUE DES MARCHÉS
+  // =====================================================================
+  let graphiqueMarche = null;
+  let donneesMarcheCache = null;
+
+  async function chargerMarches(){
+    const zoneChargement = document.getElementById("chargement-marche");
+    try{
+      const reponse = await fetch(`${API_URL}/api/marches`);
+      if(!reponse.ok) throw new Error("Réponse serveur invalide");
+      const donnees = await reponse.json();
+      donneesMarcheCache = donnees;
+
+      construireGraphique(donnees, false);
+      zoneChargement.style.display = "none";
+      definirStatutConnexion("ok", "Serveur connecté");
+    }catch(erreur){
+      zoneChargement.textContent = "Impossible de contacter le serveur Python. Vérifiez l'URL API_URL en haut du script, et que votre service Render est bien démarré (un service gratuit peut mettre 30 à 50 secondes à se réveiller).";
+      definirStatutConnexion("erreur", "Serveur injoignable");
+      console.error(erreur);
+    }
+  }
+
+  function construireGraphique(donnees, avecMoyenneMobile){
+    const jeuxDeDonnees = [];
+
+    donnees.entreprises.forEach((entreprise, index) => {
+      const couleur = PALETTE[index % PALETTE.length];
+      jeuxDeDonnees.push({
+        label: entreprise.nom,
+        data: entreprise.prix,
+        borderColor: couleur,
+        backgroundColor: couleur,
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        tension: 0.35,
+      });
+
+      if(avecMoyenneMobile){
+        jeuxDeDonnees.push({
+          label: `${entreprise.nom} (MM 3m)`,
+          data: entreprise.moyenne_mobile_3m,
+          borderColor: couleur,
+          borderWidth: 1.25,
+          borderDash: [4, 4],
+          pointRadius: 0,
+          tension: 0.35,
+          hidden: false,
+        });
+      }
+    });
+
+    if(graphiqueMarche) graphiqueMarche.destroy();
+
+    const ctx = document.getElementById("graphique-marche").getContext("2d");
+    graphiqueMarche = new Chart(ctx, {
+      type: "line",
+      data: { labels: donnees.labels, datasets: jeuxDeDonnees },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { color: "#90A2B7", usePointStyle: true, pointStyle: "circle", boxWidth: 7, font: { family: "'IBM Plex Sans', sans-serif", size: 11 } },
+          },
+          tooltip: {
+            backgroundColor: "#1D3049", borderColor: "rgba(237,239,242,0.15)", borderWidth: 1,
+            titleFont: { family: "'IBM Plex Mono', monospace" }, bodyFont: { family: "'IBM Plex Mono', monospace" },
+            callbacks: { label: (item) => ` ${item.dataset.label} : ${item.formattedValue} $` },
+          },
+        },
+        scales: {
+          x: { grid: { color: "rgba(237,239,242,0.06)" }, ticks: { color: "#90A2B7" } },
+          y: { grid: { color: "rgba(237,239,242,0.06)" }, ticks: { color: "#90A2B7" } },
+        },
+      },
+    });
+  }
+
+  document.getElementById("case-moyenne-mobile").addEventListener("change", (evenement) => {
+    if(donneesMarcheCache) construireGraphique(donneesMarcheCache, evenement.target.checked);
+  });
+
+  // =====================================================================
+  // 2. TABLEAU OPPORTUNITÉS / ANOMALIES
+  // =====================================================================
+  async function chargerOpportunites(){
+    const corps = document.getElementById("corps-tableau-opportunites");
+    try{
+      const reponse = await fetch(`${API_URL}/api/opportunites`);
+      if(!reponse.ok) throw new Error("Réponse serveur invalide");
+      const donnees = await reponse.json();
+
+      corps.innerHTML = donnees.resultats.map((entreprise) => {
+        const signeClasse = entreprise.variation_mensuelle >= 0 ? "pos" : "neg";
+        const signeTexte = entreprise.variation_mensuelle >= 0 ? "+" : "";
+        return `
+          <tr>
+            <td><div class="entreprise-nom">${entreprise.nom}</div><div class="entreprise-sym">${entreprise.symbole}</div></td>
+            <td><span class="statut-chip ${entreprise.statut}">${entreprise.statut}</span></td>
+            <td class="variation ${signeClasse}">${signeTexte}${entreprise.variation_mensuelle} %</td>
+            <td class="commentaire">${entreprise.commentaire}</td>
+          </tr>
+        `;
+      }).join("");
+    }catch(erreur){
+      corps.innerHTML = `<tr><td colspan="4" style="color:var(--coral);">Impossible de contacter le serveur Python.</td></tr>`;
+      console.error(erreur);
+    }
+  }
+
+  // =====================================================================
+  // 3. MODULE BUDGET
+  // =====================================================================
+  const formulaire = document.getElementById("formulaire-budget");
+  const boutonCalculer = document.getElementById("bouton-calculer");
+  const zoneErreur = document.getElementById("erreur-api");
+  const zonePlaceholder = document.getElementById("placeholder-resultats");
+  const zoneResultats = document.getElementById("resultats");
+
+  const CHAMPS_DEPENSES = ["logement", "alimentation", "transport", "autres_essentiels", "loisirs", "abonnements"];
+
+  formulaire.addEventListener("submit", async (evenement) => {
+    evenement.preventDefault();
+    zoneErreur.style.display = "none";
+
+    const revenu = parseFloat(document.getElementById("revenu").value);
+    const epargneActuelle = parseFloat(document.getElementById("epargne_actuelle").value) || 0;
+    const depenses = {};
+    CHAMPS_DEPENSES.forEach((champ) => {
+      const valeur = parseFloat(document.getElementById(champ).value);
+      if(!isNaN(valeur) && valeur > 0) depenses[champ] = valeur;
+    });
+
+    boutonCalculer.disabled = true;
+    boutonCalculer.textContent = "Analyse en cours…";
+
+    try{
+      const reponse = await fetch(`${API_URL}/api/budget`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revenu, epargne_actuelle: epargneActuelle, depenses }),
+      });
+
+      const analyse = await reponse.json();
+      if(!reponse.ok) throw new Error(analyse.erreur || "Erreur lors de l'analyse.");
+
+      afficherResultats(analyse, revenu);
+    }catch(erreur){
+      zoneErreur.textContent = erreur.message.includes("fetch")
+        ? "Impossible de contacter le serveur Python. Vérifiez l'URL API_URL et que le service Render est démarré."
+        : erreur.message;
+      zoneErreur.style.display = "block";
+      console.error(erreur);
+    }finally{
+      boutonCalculer.disabled = false;
+      boutonCalculer.textContent = "Analyser mon budget";
+    }
+  });
+
+  function couleurScore(score){
+    if(score >= 80) return "#3FA173";
+    if(score >= 60) return "#7FA8D9";
+    if(score >= 40) return "#E8B860";
+    return "#E2725B";
+  }
+
+  function afficherResultats(analyse, revenu){
+    zonePlaceholder.style.display = "none";
+
+    const soldeClasse = analyse.solde_mensuel >= 0 ? "pos" : "neg";
+    const soldeSigne = analyse.solde_mensuel >= 0 ? "+" : "";
+    const pourcentage = (valeur) => revenu > 0 ? Math.min((valeur / revenu) * 100, 100) : 0;
+
+    const rayon = 32, circonference = 2 * Math.PI * rayon;
+    const decalage = circonference * (1 - analyse.score_sante / 100);
+    const couleur = couleurScore(analyse.score_sante);
+
+    const mois = analyse.fonds_urgence.mois_couverts;
+    const objectifMois = analyse.fonds_urgence.objectif_mois;
+    const progressionUrgence = Math.min((mois / objectifMois) * 100, 100);
+
+    zoneResultats.innerHTML = `
+      <div class="score-bloc">
+        <div class="score-jauge">
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle class="fond" cx="42" cy="42" r="${rayon}"></circle>
+            <circle class="valeur" cx="42" cy="42" r="${rayon}" stroke="${couleur}"
+              stroke-dasharray="${circonference}" stroke-dashoffset="${decalage}"></circle>
+          </svg>
+          <div class="nombre">${analyse.score_sante}</div>
+        </div>
+        <div class="score-texte">
+          <p class="niveau">${analyse.niveau}</p>
+          <p class="sous">Score de santé financière</p>
+        </div>
+      </div>
+
+      <div class="solde-ligne">
+        <span class="label">Solde mensuel</span>
+        <span class="valeur ${soldeClasse}">${soldeSigne}${analyse.solde_mensuel.toFixed(0)} €</span>
+      </div>
+
+      <p class="sous-section-titre">Répartition 50/30/20</p>
+      <div class="repartition">
+        ${construireLigneRepartition("Besoins essentiels", analyse.repartition.besoins, analyse.cibles_50_30_20.besoins, "besoins", pourcentage)}
+        ${construireLigneRepartition("Envies / confort", analyse.repartition.envies, analyse.cibles_50_30_20.envies, "envies", pourcentage)}
+        ${construireLigneRepartition("Épargne", analyse.repartition.epargne, analyse.cibles_50_30_20.epargne, "epargne", pourcentage)}
+      </div>
+
+      <p class="sous-section-titre">Fonds d'urgence</p>
+      <div class="fonds-urgence">
+        <div class="top">
+          <span>${mois.toFixed(1)} mois de dépenses couverts</span>
+          <span class="val">Objectif : ${objectifMois} mois</span>
+        </div>
+        <div class="barre"><div class="fill urgence" style="width:${progressionUrgence}%"></div></div>
+      </div>
+
+      <p class="sous-section-titre">Projection d'épargne (si vous suivez la recommandation)</p>
+      <div class="projection">
+        <div class="carte"><div class="label">Dans 6 mois</div><div class="valeur">${analyse.projection_epargne.dans_6_mois.toFixed(0)} €</div></div>
+        <div class="carte"><div class="label">Dans 12 mois</div><div class="valeur">${analyse.projection_epargne.dans_12_mois.toFixed(0)} €</div></div>
+      </div>
+
+      ${analyse.diagnostics_categories.length ? `
+        <p class="sous-section-titre">Diagnostic par catégorie</p>
+        <table class="diagnostics">
+          <thead><tr><th>Catégorie</th><th>Montant</th><th>% revenu</th><th>Statut</th></tr></thead>
+          <tbody>
+            ${analyse.diagnostics_categories.map((d) => `
+              <tr>
+                <td style="text-transform:capitalize;">${d.categorie.replace(/_/g, " ")}</td>
+                <td class="variation">${d.montant.toFixed(0)} €</td>
+                <td class="variation">${d.part_revenu}%</td>
+                <td><span class="pastille ${d.statut === "Dans la norme" ? "ok" : d.statut === "Dépassement" ? "depassement" : "na"}"></span>${d.statut}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      ` : ""}
+
+      ${analyse.alertes.length ? `<ul class="liste-messages alertes">${analyse.alertes.map((t) => `<li>${t}</li>`).join("")}</ul>` : ""}
+      ${analyse.conseils.length ? `<ul class="liste-messages conseils">${analyse.conseils.map((t) => `<li>${t}</li>`).join("")}</ul>` : ""}
+
+      <div class="recommandation"><strong>Recommandation —</strong> ${analyse.recommandation_epargne}</div>
+    `;
+
+    zoneResultats.classList.remove("visible");
+    requestAnimationFrame(() => requestAnimationFrame(() => zoneResultats.classList.add("visible")));
+  }
+
+  function construireLigneRepartition(nom, valeur, cible, classe, pourcentage){
+    return `
+      <div class="repartition-item">
+        <div class="top">
+          <span>${nom}</span>
+          <span class="val">${valeur.toFixed(0)} € <span style="opacity:0.6">/ cible ${cible.toFixed(0)} €</span></span>
+        </div>
+        <div class="barre"><div class="fill ${classe}" style="width:${pourcentage(valeur)}%"></div></div>
+      </div>
+    `;
+  }
+
+  // =====================================================================
+  // INITIALISATION
+  // =====================================================================
+  chargerMarches();
+  chargerOpportunites();
+</script>
+
+</body>
+</html>
