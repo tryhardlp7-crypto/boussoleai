@@ -96,12 +96,21 @@
   .panel.gold{ border-top-color: var(--gold); }
 
   .chart-toolbar{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
-  .chart-toolbar .info{ font-size: 0.8rem; color: var(--text-muted); }
+  .chart-toolbar .info{ font-size: 0.8rem; color: var(--text-muted); max-width: 40ch; }
+  .chart-toolbar .controles{ display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .chart-toolbar input[type="search"]{
+    background: var(--surface-alt); border: 1px solid var(--border-strong); border-radius: 4px;
+    padding: 9px 12px; color: var(--text); font-family: var(--font-body); font-size: 0.85rem; min-width: 220px;
+  }
+  .chart-toolbar select{
+    background: var(--surface-alt); border: 1px solid var(--border-strong); border-radius: 4px;
+    padding: 9px 12px; color: var(--text); font-family: var(--font-body); font-size: 0.85rem;
+  }
   .toggle-ma{ display: flex; align-items: center; gap: 8px; font-size: 0.83rem; color: var(--text-muted); cursor: pointer; user-select: none; }
   .toggle-ma input{ accent-color: var(--emerald); width: 14px; height: 14px; cursor: pointer; }
 
-  .chart-holder{ background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald); border-radius: 6px; padding: 24px 20px 12px; position: relative; height: 380px; }
-  #chargement-marche{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono); text-align: center; padding: 0 30px; background: var(--surface); border-radius: 6px; }
+  .chart-holder{ background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald); border-radius: 6px; padding: 24px 20px 12px; position: relative; height: 420px; }
+  #chargement-marche{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono); text-align: center; padding: 0 30px; background: var(--surface); border-radius: 6px; z-index: 2; }
 
   .filtres-tableau{ display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
   .filtres-tableau input[type="search"]{
@@ -144,6 +153,9 @@
   .actu-liste a{ color: var(--blue); text-decoration: none; }
   .actu-liste a:hover{ text-decoration: underline; }
   .actu-liste .cats{ color: var(--text-muted); font-size: 0.76rem; margin-top: 2px; }
+  .actu-macro{ margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--border-strong); }
+  .actu-macro-titre{ font-size: 0.78rem; color: var(--gold); font-weight: 500; margin-bottom: 6px; }
+  .actu-macro-note{ color: var(--text-muted); font-size: 0.76rem; margin-top: 6px; }
 
   .pagination{ display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
   .pagination button{
@@ -153,6 +165,17 @@
   .pagination button:hover{ border-color: var(--emerald); }
   .pagination button.actif{ background: var(--emerald); color: #06140D; border-color: var(--emerald); }
   .pagination button:disabled{ opacity: 0.4; cursor: default; }
+
+  /* -------------------------- MODULE SUGGESTIONS DE PLACEMENT -------------------------- */
+  .grille-suggestions{ display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 4px; }
+  .carte-suggestion{ background: var(--surface-alt); border: 1px solid var(--border-strong); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .cs-top{ display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .cs-metrics{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.82rem; }
+  .cs-metrics > div{ display: flex; flex-direction: column; gap: 3px; }
+  .cs-metrics .label{ font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  .cs-score-ligne{ display: flex; align-items: center; gap: 8px; }
+  .cs-score-ligne .score-barre{ flex: 1; width: auto; }
+  .cs-score-ligne .score-nombre{ font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
 
   /* -------------------------- MODULE BUDGET (inchangé) -------------------------- */
   .budget-grid{ display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 24px; align-items: start; }
@@ -230,6 +253,7 @@
     .projection{ grid-template-columns: 1fr; }
     table.ledger{ font-size: 0.82rem; }
     .entreprise-secteur, th.colonne-secteur{ display: none; }
+    .cs-metrics{ grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -248,13 +272,13 @@
   <div class="wrap">
     <div class="avertissement">
       <span class="icone">ⓘ</span>
-      <span>Boussole est un outil de <strong>screening</strong> basé sur des données de marché réelles et des indicateurs statistiques transparents. Ce n'est pas un conseil financier professionnel, et aucun score ni indicateur ne constitue une prédiction garantie de gain : les performances passées ne préjugent pas des performances futures.</span>
+      <span>Boussole est un outil de <strong>screening</strong> basé sur des données de marché réelles et des indicateurs statistiques transparents. Ce n'est pas un conseil financier professionnel, et aucun score, tendance ou suggestion ne constitue une prédiction garantie de gain : les performances passées ne préjugent pas des performances futures.</span>
     </div>
 
     <section class="hero">
       <div>
         <h1>Repérez les actions qui méritent votre attention.</h1>
-        <p>Boussole analyse 100 grandes entreprises cotées à partir de vraies données de marché (Yahoo Finance) et d'actualités récentes, pour vous aider à orienter vos recherches — pas à décider à votre place.</p>
+        <p>Boussole analyse 100 grandes entreprises cotées à partir de vraies données de marché (Yahoo Finance) et d'actualités récentes — y compris des actualités macro-économiques (tarifs douaniers, tensions commerciales…) — pour vous aider à orienter vos recherches, pas à décider à votre place.</p>
       </div>
       <div class="hero-side">
         <p class="label">Entreprises suivies</p>
@@ -265,8 +289,20 @@
 
     <section class="block" id="marches">
       <div class="block-head">
-        <h2>Les meilleurs scores du moment</h2>
-        <p class="note">Historique de prix réel sur les entreprises au score le plus élevé actuellement (voir méthodologie ci-dessous).</p>
+        <h2>Comparatif des cours — les 100 entreprises</h2>
+        <p class="note">Historique de prix réel sur les entreprises suivies, classées de la plus à la moins « fructueuse » (score le plus élevé en premier).</p>
+      </div>
+      <div class="chart-toolbar">
+        <p class="info">Avec 100 courbes affichées, utilisez la recherche pour mettre en évidence une entreprise précise — les autres seront estompées.</p>
+        <div class="controles">
+          <input type="search" id="chart-recherche" placeholder="Mettre en évidence une entreprise…" list="liste-noms-entreprises">
+          <datalist id="liste-noms-entreprises"></datalist>
+          <select id="chart-limite">
+            <option value="25">Top 25 (score)</option>
+            <option value="50">Top 50 (score)</option>
+            <option value="100" selected>Les 100 entreprises</option>
+          </select>
+        </div>
       </div>
       <div class="chart-holder">
         <div id="chargement-marche">Chargement des données…</div>
@@ -277,7 +313,7 @@
     <section class="block" id="opportunites">
       <div class="block-head">
         <h2>Classement des 100 entreprises</h2>
-        <p class="note">Score basé sur la performance réelle (1/3/6 mois), la volatilité et la tendance. Cliquez sur une ligne pour charger l'analyse d'actualités récentes de l'entreprise.</p>
+        <p class="note">Score basé sur la performance réelle (1/3/6 mois), la volatilité et la tendance. Cliquez sur une ligne pour charger l'analyse d'actualités récentes de l'entreprise — y compris les risques macro-sectoriels.</p>
       </div>
       <div class="panel">
         <div class="filtres-tableau">
@@ -308,6 +344,17 @@
           </tbody>
         </table>
         <div class="pagination" id="pagination"></div>
+      </div>
+    </section>
+
+    <section class="block" id="suggestions">
+      <div class="block-head">
+        <h2>Suggestions de placement</h2>
+        <p class="note">Des actions dont la tendance haussière vient de démarrer récemment — ni un simple sursaut d'un jour, ni un rallye déjà ancien qui pourrait s'essouffler. Un point de départ pour vos recherches, pas une recommandation d'achat.</p>
+      </div>
+      <div class="panel gold">
+        <div id="chargement-suggestions" style="color:var(--text-muted); font-family:var(--font-mono); font-size:0.85rem;">Analyse des tendances récentes…</div>
+        <div class="grille-suggestions" id="grille-suggestions"></div>
       </div>
     </section>
 
@@ -353,7 +400,7 @@
   </div>
 
   <footer class="wrap">
-    Boussole — outil de screening pédagogique. Les données de marché sont réelles (Yahoo Finance) mais les scores et analyses ne constituent pas un conseil financier professionnel ni une garantie de performance.
+    Boussole — outil de screening pédagogique. Les données de marché sont réelles (Yahoo Finance) mais les scores, tendances et suggestions ne constituent pas un conseil financier professionnel ni une garantie de performance.
   </footer>
 
 <script>
@@ -371,12 +418,50 @@
     libelle.textContent = texte;
   }
 
+  // Formate un nombre en toute sécurité : gère null, undefined, NaN et les
+  // chaînes de caractères éventuelles (ex: valeur JSON mal typée), pour
+  // éviter tout "Cannot read properties of undefined (reading 'toFixed')".
+  function formaterNombre(valeur, decimales){
+    const nombre = typeof valeur === "number" ? valeur : parseFloat(valeur);
+    if(valeur === null || valeur === undefined || Number.isNaN(nombre)) return null;
+    return nombre.toFixed(decimales);
+  }
+
+  function formaterVariation(valeur){
+    const formate = formaterNombre(valeur, 1);
+    if(formate === null) return `<span class="variation" style="color:var(--text-muted)">n/d</span>`;
+    const classe = parseFloat(formate) >= 0 ? "pos" : "neg";
+    const signe = parseFloat(formate) >= 0 ? "+" : "";
+    return `<span class="variation ${classe}">${signe}${formate} %</span>`;
+  }
+
+  function couleurScore(score){
+    if(score >= 68) return "#3FA173";
+    if(score >= 40) return "#E8B860";
+    return "#E2725B";
+  }
+
   // =====================================================================
-  // 1. GRAPHIQUE DES MEILLEURS SCORES
+  // 0. LISTE DES ENTREPRISES (pour le datalist de mise en évidence du graphique)
+  // =====================================================================
+  async function chargerListeNomsEntreprises(){
+    try{
+      const reponse = await fetch(`${API_URL}/api/entreprises`);
+      if(!reponse.ok) return;
+      const donnees = await reponse.json();
+      const datalist = document.getElementById("liste-noms-entreprises");
+      datalist.innerHTML = (donnees.entreprises || []).map(e => `<option value="${e.nom}"></option>`).join("");
+    }catch(erreur){
+      console.warn("Impossible de charger la liste des entreprises pour la recherche :", erreur);
+    }
+  }
+
+  // =====================================================================
+  // 1. GRAPHIQUE DES COURS (100 entreprises par défaut)
   // =====================================================================
   let graphiqueMarche = null;
 
-  async function chargerMarches(){
+  async function chargerMarches(limite){
     const zoneChargement = document.getElementById("chargement-marche");
 
     if(typeof Chart === "undefined"){
@@ -385,8 +470,11 @@
       return;
     }
 
+    zoneChargement.style.display = "flex";
+    zoneChargement.textContent = "Chargement des données…";
+
     try{
-      const reponse = await fetch(`${API_URL}/api/marches?limite=8`);
+      const reponse = await fetch(`${API_URL}/api/marches?limite=${limite}`);
       if(!reponse.ok) throw new Error("Réponse serveur invalide");
       const donnees = await reponse.json();
 
@@ -410,10 +498,11 @@
         data: entreprise.prix,
         borderColor: couleur,
         backgroundColor: couleur,
-        borderWidth: 2,
+        borderWidth: 1.4,
         pointRadius: 0,
         pointHoverRadius: 4,
         tension: 0.25,
+        _couleurBase: couleur,
       };
     });
 
@@ -426,9 +515,13 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
+        interaction: { mode: "nearest", intersect: false },
+        // La légende est désactivée : avec jusqu'à 100 entreprises elle
+        // serait illisible. On utilise plutôt la recherche au-dessus du
+        // graphique pour mettre une courbe en évidence, et le survol pour
+        // voir le nom exact d'une courbe.
         plugins: {
-          legend: { position: "bottom", labels: { color: "#90A2B7", usePointStyle: true, pointStyle: "circle", boxWidth: 7, font: { family: "'IBM Plex Sans', sans-serif", size: 11 } } },
+          legend: { display: false },
           tooltip: {
             backgroundColor: "#1D3049", borderColor: "rgba(237,239,242,0.15)", borderWidth: 1,
             titleFont: { family: "'IBM Plex Mono', monospace" }, bodyFont: { family: "'IBM Plex Mono', monospace" },
@@ -441,7 +534,36 @@
         },
       },
     });
+
+    appliquerSurbrillanceGraphique();
   }
+
+  function appliquerSurbrillanceGraphique(){
+    if(!graphiqueMarche) return;
+    const terme = document.getElementById("chart-recherche").value.trim().toLowerCase();
+
+    graphiqueMarche.data.datasets.forEach(ds => {
+      if(!terme){
+        ds.borderColor = ds._couleurBase;
+        ds.borderWidth = 1.4;
+        ds.order = 0;
+      }else if(ds.label.toLowerCase().includes(terme)){
+        ds.borderColor = ds._couleurBase;
+        ds.borderWidth = 3.2;
+        ds.order = -1; // dessiné par-dessus les autres
+      }else{
+        ds.borderColor = ds._couleurBase + "20"; // ~12 % d'opacité
+        ds.borderWidth = 1;
+        ds.order = 1;
+      }
+    });
+    graphiqueMarche.update();
+  }
+
+  document.getElementById("chart-recherche").addEventListener("input", appliquerSurbrillanceGraphique);
+  document.getElementById("chart-limite").addEventListener("change", (evenement) => {
+    chargerMarches(parseInt(evenement.target.value, 10));
+  });
 
   // =====================================================================
   // 2. TABLEAU DES 100 ENTREPRISES
@@ -488,29 +610,6 @@
     if(niveau === "Potentiel haussier") return "haussier";
     if(niveau === "Signal de prudence") return "prudence";
     return "neutre";
-  }
-
-  function couleurScore(score){
-    if(score >= 68) return "#3FA173";
-    if(score >= 40) return "#E8B860";
-    return "#E2725B";
-  }
-
-  // Formate un nombre en toute sécurité : gère null, undefined, NaN et les
-  // chaînes de caractères éventuelles (ex: valeur JSON mal typée), pour
-  // éviter tout "Cannot read properties of undefined (reading 'toFixed')".
-  function formaterNombre(valeur, decimales){
-    const nombre = typeof valeur === "number" ? valeur : parseFloat(valeur);
-    if(valeur === null || valeur === undefined || Number.isNaN(nombre)) return null;
-    return nombre.toFixed(decimales);
-  }
-
-  function formaterVariation(valeur){
-    const formate = formaterNombre(valeur, 1);
-    if(formate === null) return `<span class="variation" style="color:var(--text-muted)">n/d</span>`;
-    const classe = parseFloat(formate) >= 0 ? "pos" : "neg";
-    const signe = parseFloat(formate) >= 0 ? "+" : "";
-    return `<span class="variation ${classe}">${signe}${formate} %</span>`;
   }
 
   function appliquerFiltresEtAfficher(){
@@ -586,18 +685,20 @@
 
     if(contenu.dataset.charge === "1") return;
 
-    contenu.innerHTML = `<span class="actu-chargement">Recherche des actualités récentes pour ${nom}…</span>`;
+    contenu.innerHTML = `<span class="actu-chargement">Recherche des actualités récentes pour ${nom} (y compris les actualités macro de son secteur)…</span>`;
     try{
       const reponse = await fetch(`${API_URL}/api/actualites/${symbole}`);
       const donnees = await reponse.json();
       if(!reponse.ok) throw new Error(donnees.erreur || "Erreur");
 
+      let html = "";
+
       if(donnees.nb_articles_analyses === 0){
-        contenu.innerHTML = `<span style="color:var(--text-muted)">Aucune actualité récente trouvée pour ${nom} (14 derniers jours).</span>`;
+        html += `<span style="color:var(--text-muted)">Aucune actualité récente trouvée pour ${nom} (14 derniers jours).</span>`;
       }else{
         const scoreValeur = typeof donnees.score === "number" ? donnees.score : 0;
         const scoreTexte = scoreValeur >= 0.1 ? "plutôt positif" : scoreValeur <= -0.1 ? "plutôt négatif" : "neutre";
-        let html = `<div>Sentiment des actualités récentes : <strong>${scoreTexte}</strong> (${formaterNombre(scoreValeur, 2) ?? "0.00"}, confiance ${donnees.confiance}, ${donnees.nb_articles_analyses} articles analysés)</div>`;
+        html += `<div>Sentiment des actualités récentes : <strong>${scoreTexte}</strong> (${formaterNombre(scoreValeur, 2) ?? "0.00"}, confiance ${donnees.confiance}, ${donnees.nb_articles_analyses} articles analysés)</div>`;
         if(donnees.categories_a_risque.length){
           html += `<div style="margin-top:8px; color:var(--coral)">Thèmes de risque détectés : ${donnees.categories_a_risque.join(", ")}</div>`;
         }
@@ -609,8 +710,27 @@
             </li>
           `).join("")}</ul>`;
         }
-        contenu.innerHTML = html;
       }
+
+      // Risques macro-sectoriels : détectés même quand l'entreprise n'est
+      // pas nommée dans l'actualité (ex : tarifs douaniers touchant tout
+      // un secteur/pays). Affichés séparément pour rester transparent sur
+      // le fait que ce n'est pas une actualité propre à l'entreprise.
+      if(donnees.risques_macro_sectoriels && donnees.risques_macro_sectoriels.length){
+        html += `<div class="actu-macro">
+          <div class="actu-macro-titre">⚠ Contexte macro-économique du secteur/pays</div>
+          <div style="color:var(--coral)">${donnees.risques_macro_sectoriels.join(", ")}</div>
+          ${(donnees.articles_macro_sectoriels || []).length ? `<ul class="actu-liste">${donnees.articles_macro_sectoriels.map(a => `
+            <li>
+              <a href="${a.lien}" target="_blank" rel="noopener">${a.titre}</a>
+              <div class="cats">${a.source || "Source inconnue"} — ${a.categories.join(", ")}</div>
+            </li>
+          `).join("")}</ul>` : ""}
+          <p class="actu-macro-note">Ces actualités concernent le secteur ou le pays de l'entreprise, pas nécessairement l'entreprise elle-même — un signal indirect à interpréter avec prudence.</p>
+        </div>`;
+      }
+
+      contenu.innerHTML = html;
       contenu.dataset.charge = "1";
     }catch(erreur){
       contenu.innerHTML = `<span style="color:var(--coral)">Impossible de charger les actualités pour le moment.</span>`;
@@ -643,7 +763,50 @@
   document.getElementById("tri-colonne").addEventListener("change", () => { pageActuelle = 1; appliquerFiltresEtAfficher(); });
 
   // =====================================================================
-  // 3. MODULE BUDGET (inchangé)
+  // 3. SUGGESTIONS DE PLACEMENT (tendances haussières fraîches)
+  // =====================================================================
+  async function chargerSuggestions(){
+    const zone = document.getElementById("grille-suggestions");
+    const chargement = document.getElementById("chargement-suggestions");
+    try{
+      const reponse = await fetch(`${API_URL}/api/suggestions`);
+      if(!reponse.ok) throw new Error("Réponse serveur invalide");
+      const donnees = await reponse.json();
+      chargement.style.display = "none";
+
+      if(!donnees.resultats || donnees.resultats.length === 0){
+        zone.innerHTML = `<p style="color:var(--text-muted); grid-column: 1 / -1;">Aucune action ne correspond actuellement aux critères d'une tendance haussière récente. Revenez plus tard : ces signaux évoluent chaque jour.</p>`;
+        return;
+      }
+
+      zone.innerHTML = donnees.resultats.map(e => `
+        <div class="carte-suggestion">
+          <div class="cs-top">
+            <div>
+              <div class="entreprise-nom">${e.nom}</div>
+              <div class="entreprise-sym">${e.symbole} · ${e.secteur || "—"}</div>
+            </div>
+            <span class="statut-chip haussier">Tendance depuis ${e.jours_depuis_signal_hausse}&nbsp;j</span>
+          </div>
+          <div class="cs-metrics">
+            <div><span class="label">Perf. 1 mois</span>${formaterVariation(e.rendement_1m)}</div>
+            <div><span class="label">Perf. 3 mois</span>${formaterVariation(e.rendement_3m)}</div>
+            <div><span class="label">Volatilité</span><span class="variation">${formaterNombre(e.volatilite_annualisee, 1) ?? "n/d"} %</span></div>
+          </div>
+          <div class="cs-score-ligne">
+            <div class="score-barre"><div class="fill" style="width:${e.score}%; background:${couleurScore(e.score)}"></div></div>
+            <span class="score-nombre">score ${e.score}</span>
+          </div>
+        </div>
+      `).join("");
+    }catch(erreur){
+      chargement.textContent = "Impossible de contacter le serveur Python pour les suggestions de placement.";
+      console.error(erreur);
+    }
+  }
+
+  // =====================================================================
+  // 4. MODULE BUDGET (inchangé)
   // =====================================================================
   const formulaire = document.getElementById("formulaire-budget");
   const boutonCalculer = document.getElementById("bouton-calculer");
@@ -780,8 +943,10 @@
   // =====================================================================
   // INITIALISATION
   // =====================================================================
-  chargerMarches();
+  chargerListeNomsEntreprises();
+  chargerMarches(parseInt(document.getElementById("chart-limite").value, 10));
   chargerOpportunites();
+  chargerSuggestions();
 </script>
 
 </body>
