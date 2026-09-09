@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boussole — Aide à la décision financière</title>
+<title>Boussole — Screening d'actions &amp; budget</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 
@@ -50,98 +50,105 @@
 
   a{ color: inherit; }
   ::selection{ background: var(--emerald); color: #06120C; }
+  a:focus-visible, button:focus-visible, input:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
 
-  a:focus-visible, button:focus-visible, input:focus-visible{
-    outline: 2px solid var(--gold);
-    outline-offset: 2px;
-  }
+  .wrap{ max-width: 1150px; margin: 0 auto; padding: 0 28px; }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
-  }
-
-  .wrap{ max-width: 1100px; margin: 0 auto; padding: 0 28px; }
-
-  /* -------------------------- EN-TÊTE -------------------------- */
   header{ padding: 34px 0 0; }
   .brand{ display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; }
   .brand .mark{ width: 26px; height: 26px; border: 1.5px solid var(--gold); border-radius: 50%; position: relative; flex-shrink: 0; }
   .brand .mark::after{ content: ""; position: absolute; left: 50%; top: 50%; width: 1.5px; height: 9px; background: var(--gold); transform: translate(-50%,-50%) rotate(35deg); }
-  .brand .statut-connexion{
-    margin-left: auto; display: flex; align-items: center; gap: 7px;
-    font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);
-  }
+  .brand .statut-connexion{ margin-left: auto; display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted); }
   .brand .statut-connexion .point{ width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
   .brand .statut-connexion.ok .point{ background: var(--emerald); }
   .brand .statut-connexion.erreur .point{ background: var(--coral); }
   header .wrap{ display: flex; }
 
-  /* -------------------------- HÉRO -------------------------- */
-  .hero{
-    padding: 60px 0 52px;
-    border-bottom: 1px solid var(--border);
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 48px;
-    align-items: end;
+  .avertissement{
+    margin-top: 18px; padding: 12px 16px; background: var(--gold-soft); border: 1px solid rgba(232,184,96,0.25);
+    border-radius: 6px; font-size: 0.83rem; color: #F0D9A8; display: flex; gap: 10px; align-items: flex-start;
   }
-  .hero h1{
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: clamp(2.1rem, 4vw, 3rem);
-    line-height: 1.15;
-    margin: 0 0 16px;
-    max-width: 17ch;
-    color: var(--text);
-  }
-  .hero p{ color: var(--text-muted); font-size: 1.02rem; max-width: 46ch; margin: 0; }
+  .avertissement .icone{ flex-shrink: 0; }
+
+  .hero{ padding: 40px 0 52px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: end; }
+  .hero h1{ font-family: var(--font-display); font-weight: 500; font-size: clamp(2.1rem, 4vw, 3rem); line-height: 1.15; margin: 0 0 16px; max-width: 19ch; color: var(--text); }
+  .hero p{ color: var(--text-muted); font-size: 1.02rem; max-width: 48ch; margin: 0; }
   .hero-side{ border-left: 1px solid var(--border); padding-left: 28px; }
   .hero-side .label{ font-size: 0.82rem; color: var(--text-muted); margin: 0 0 6px; }
   .hero-side .figure{ font-family: var(--font-mono); font-size: 2rem; color: var(--gold); }
   .hero-side .sub{ font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
 
-  /* -------------------------- SECTIONS -------------------------- */
   section.block{ padding: 54px 0; border-bottom: 1px solid var(--border); }
   section.block:last-of-type{ border-bottom: none; }
-
   .block-head{ display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
   .block-head h2{ font-family: var(--font-display); font-weight: 500; font-size: 1.6rem; margin: 0; }
-  .block-head .note{ color: var(--text-muted); font-size: 0.88rem; max-width: 40ch; }
+  .block-head .note{ color: var(--text-muted); font-size: 0.88rem; max-width: 42ch; }
 
   .panel{ background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald); border-radius: 6px; padding: 26px; }
   .panel.gold{ border-top-color: var(--gold); }
 
-  /* -------------------------- GRAPHIQUE -------------------------- */
-  .chart-toolbar{ display: flex; justify-content: flex-end; margin-bottom: 14px; }
+  .chart-toolbar{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+  .chart-toolbar .info{ font-size: 0.8rem; color: var(--text-muted); }
   .toggle-ma{ display: flex; align-items: center; gap: 8px; font-size: 0.83rem; color: var(--text-muted); cursor: pointer; user-select: none; }
   .toggle-ma input{ accent-color: var(--emerald); width: 14px; height: 14px; cursor: pointer; }
 
-  .chart-holder{
-    background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald);
-    border-radius: 6px; padding: 24px 20px 12px; position: relative; height: 380px;
-  }
-  #chargement-marche{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono); text-align: center; padding: 0 30px; }
+  .chart-holder{ background: var(--surface); border: 1px solid var(--border); border-top: 3px solid var(--emerald); border-radius: 6px; padding: 24px 20px 12px; position: relative; height: 380px; }
+  #chargement-marche{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono); text-align: center; padding: 0 30px; background: var(--surface); border-radius: 6px; }
 
-  /* -------------------------- TABLEAU LEDGER -------------------------- */
-  table.ledger{ width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  table.ledger th{ text-align: left; font-weight: 500; color: var(--text-muted); padding: 0 14px 12px 0; border-bottom: 1px solid var(--border-strong); font-size: 0.8rem; }
-  table.ledger td{ padding: 14px 14px 14px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .filtres-tableau{ display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .filtres-tableau input[type="search"]{
+    flex: 1; min-width: 220px; background: var(--surface-alt); border: 1px solid var(--border-strong);
+    border-radius: 4px; padding: 10px 12px; color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
+  }
+  .filtres-tableau select{
+    background: var(--surface-alt); border: 1px solid var(--border-strong); border-radius: 4px;
+    padding: 10px 12px; color: var(--text); font-family: var(--font-body); font-size: 0.85rem;
+  }
+
+  table.ledger{ width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  table.ledger th{ text-align: left; font-weight: 500; color: var(--text-muted); padding: 0 12px 12px 0; border-bottom: 1px solid var(--border-strong); font-size: 0.78rem; cursor: pointer; white-space: nowrap; }
+  table.ledger th:hover{ color: var(--text); }
+  table.ledger td{ padding: 13px 12px 13px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.ledger tbody tr:hover{ background: rgba(255,255,255,0.02); cursor: pointer; }
   table.ledger tr:last-child td{ border-bottom: none; }
   .entreprise-nom{ font-weight: 600; }
-  .entreprise-sym{ color: var(--text-muted); font-family: var(--font-mono); font-size: 0.8rem; }
-  .variation{ font-family: var(--font-mono); }
+  .entreprise-sym{ color: var(--text-muted); font-family: var(--font-mono); font-size: 0.78rem; }
+  .entreprise-secteur{ color: var(--text-muted); font-size: 0.76rem; }
+  .variation{ font-family: var(--font-mono); white-space: nowrap; }
   .variation.pos{ color: var(--emerald); }
   .variation.neg{ color: var(--coral); }
-  .commentaire{ color: var(--text-muted); font-size: 0.86rem; max-width: 34ch; }
 
-  .statut-chip{ display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; }
-  .statut-chip.Opportunité{ background: var(--emerald-soft); color: var(--emerald); }
-  .statut-chip.Anomalie{ background: var(--coral-soft); color: var(--coral); }
-  .statut-chip.Stable{ background: var(--gold-soft); color: var(--gold); }
+  .statut-chip{ display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 0.76rem; font-weight: 500; white-space: nowrap; }
+  .statut-chip.haussier{ background: var(--emerald-soft); color: var(--emerald); }
+  .statut-chip.prudence{ background: var(--coral-soft); color: var(--coral); }
+  .statut-chip.neutre{ background: var(--gold-soft); color: var(--gold); }
 
-  /* -------------------------- MODULE BUDGET -------------------------- */
+  .score-barre{ width: 60px; height: 5px; background: var(--surface-alt); border-radius: 100px; overflow: hidden; margin-top: 5px; }
+  .score-barre .fill{ height: 100%; border-radius: 100px; }
+
+  .ligne-actualites{ display: none; background: var(--surface-alt); }
+  .ligne-actualites.visible{ display: table-row; }
+  .ligne-actualites td{ padding: 18px; border-bottom: 1px solid var(--border); }
+  .actu-contenu{ font-size: 0.85rem; }
+  .actu-chargement{ color: var(--text-muted); font-family: var(--font-mono); font-size: 0.82rem; }
+  .actu-liste{ list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+  .actu-liste li{ padding: 8px 10px; border-radius: 4px; background: rgba(0,0,0,0.15); }
+  .actu-liste a{ color: var(--blue); text-decoration: none; }
+  .actu-liste a:hover{ text-decoration: underline; }
+  .actu-liste .cats{ color: var(--text-muted); font-size: 0.76rem; margin-top: 2px; }
+
+  .pagination{ display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+  .pagination button{
+    background: var(--surface-alt); border: 1px solid var(--border-strong); color: var(--text);
+    border-radius: 4px; padding: 7px 12px; font-size: 0.82rem; cursor: pointer; font-family: var(--font-mono);
+  }
+  .pagination button:hover{ border-color: var(--emerald); }
+  .pagination button.actif{ background: var(--emerald); color: #06140D; border-color: var(--emerald); }
+  .pagination button:disabled{ opacity: 0.4; cursor: default; }
+
+  /* -------------------------- MODULE BUDGET (inchangé) -------------------------- */
   .budget-grid{ display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 24px; align-items: start; }
-
   .champ{ margin-bottom: 16px; }
   .champ label{ display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
   .champ input{ width: 100%; background: var(--surface-alt); border: 1px solid var(--border-strong); border-radius: 4px; padding: 10px 12px; color: var(--text); font-family: var(--font-mono); font-size: 0.95rem; }
@@ -149,27 +156,16 @@
   .champ input::placeholder{ color: rgba(144,162,183,0.5); }
   .champ-revenu input{ font-size: 1.1rem; }
   .champ-aide{ font-size: 0.78rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 16px; }
-
   .separateur-form{ border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-  .sous-titre-form{ font-size: 0.82rem; color: var(--text-muted); margin: 0 0 14px; text-transform: none; }
-
+  .sous-titre-form{ font-size: 0.82rem; color: var(--text-muted); margin: 0 0 14px; }
   .grille-depenses{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
-
-  button.calculer{
-    width: 100%; margin-top: 8px; background: var(--emerald); color: #06140D; border: none;
-    border-radius: 4px; padding: 13px 18px; font-family: var(--font-body); font-weight: 600;
-    font-size: 0.95rem; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease;
-  }
+  button.calculer{ width: 100%; margin-top: 8px; background: var(--emerald); color: #06140D; border: none; border-radius: 4px; padding: 13px 18px; font-family: var(--font-body); font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; }
   button.calculer:hover{ background: var(--emerald-bright); }
   button.calculer:active{ transform: scale(0.99); }
   button.calculer:disabled{ opacity: 0.6; cursor: wait; }
-
   #resultats{ opacity: 0; transform: translateY(6px); transition: opacity 0.4s ease, transform 0.4s ease; }
   #resultats.visible{ opacity: 1; transform: translateY(0); }
-
   .placeholder-resultats{ color: var(--text-muted); font-size: 0.92rem; display: flex; align-items: center; height: 100%; min-height: 260px; }
-
-  /* Score de santé */
   .score-bloc{ display: flex; align-items: center; gap: 22px; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--border); }
   .score-jauge{ position: relative; width: 84px; height: 84px; flex-shrink: 0; }
   .score-jauge svg{ transform: rotate(-90deg); }
@@ -178,15 +174,12 @@
   .score-jauge .nombre{ position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 1.25rem; }
   .score-texte .niveau{ font-family: var(--font-display); font-size: 1.25rem; margin: 0 0 3px; }
   .score-texte .sous{ font-size: 0.83rem; color: var(--text-muted); margin: 0; }
-
   .solde-ligne{ display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
   .solde-ligne .label{ color: var(--text-muted); font-size: 0.88rem; }
   .solde-ligne .valeur{ font-family: var(--font-mono); font-size: 1.5rem; }
   .solde-ligne .valeur.pos{ color: var(--emerald); }
   .solde-ligne .valeur.neg{ color: var(--coral); }
-
   .sous-section-titre{ font-size: 0.8rem; color: var(--text-muted); margin: 0 0 12px; }
-
   .repartition{ margin-bottom: 20px; }
   .repartition-item{ margin-bottom: 12px; }
   .repartition-item .top{ display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; }
@@ -197,16 +190,13 @@
   .fill.envies{ background: var(--blue); }
   .fill.epargne{ background: var(--emerald); }
   .fill.urgence{ background: var(--emerald); }
-
   .fonds-urgence{ margin-bottom: 20px; }
   .fonds-urgence .top{ display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
   .fonds-urgence .top .val{ font-family: var(--font-mono); color: var(--text-muted); }
-
   .projection{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
   .projection .carte{ background: var(--surface-alt); border-radius: 5px; padding: 14px; }
   .projection .carte .label{ font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
   .projection .carte .valeur{ font-family: var(--font-mono); font-size: 1.15rem; color: var(--emerald); }
-
   table.diagnostics{ width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-bottom: 20px; }
   table.diagnostics th{ text-align: left; color: var(--text-muted); font-weight: 500; padding: 0 8px 8px 0; border-bottom: 1px solid var(--border-strong); font-size: 0.76rem; }
   table.diagnostics td{ padding: 8px 8px 8px 0; border-bottom: 1px solid var(--border); }
@@ -215,15 +205,12 @@
   .pastille.ok{ background: var(--emerald); }
   .pastille.depassement{ background: var(--coral); }
   .pastille.na{ background: var(--text-muted); }
-
   .liste-messages{ list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
   .liste-messages li{ padding: 10px 12px; border-radius: 4px; font-size: 0.86rem; line-height: 1.45; }
   .liste-messages.conseils li{ background: var(--emerald-soft); color: #B7E3CD; }
   .liste-messages.alertes li{ background: var(--coral-soft); color: #F3C3B8; }
-
   .recommandation{ border-top: 1px solid var(--border); padding-top: 16px; font-size: 0.9rem; color: var(--text-muted); }
   .recommandation strong{ color: var(--gold); font-weight: 500; }
-
   .erreur-api{ color: var(--coral); font-size: 0.86rem; margin-top: 10px; }
 
   footer{ padding: 30px 0 50px; color: var(--text-muted); font-size: 0.82rem; }
@@ -234,13 +221,13 @@
     .budget-grid{ grid-template-columns: 1fr; }
     .grille-depenses{ grid-template-columns: 1fr; }
     .projection{ grid-template-columns: 1fr; }
-    table.ledger{ font-size: 0.85rem; }
-    .commentaire{ max-width: none; }
+    table.ledger{ font-size: 0.82rem; }
+    .entreprise-secteur, th.colonne-secteur{ display: none; }
   }
 </style>
 </head>
 <body>
-<script src="https://jsdelivr.net"></script>
+
   <header>
     <div class="wrap">
       <div class="brand">
@@ -252,29 +239,27 @@
   </header>
 
   <div class="wrap">
+    <div class="avertissement">
+      <span class="icone">ⓘ</span>
+      <span>Boussole est un outil de <strong>screening</strong> basé sur des données de marché réelles et des indicateurs statistiques transparents. Ce n'est pas un conseil financier professionnel, et aucun score ni indicateur ne constitue une prédiction garantie de gain : les performances passées ne préjugent pas des performances futures.</span>
+    </div>
 
     <section class="hero">
       <div>
-        <h1>Voyez clair dans vos finances, sans jargon.</h1>
-        <p>Boussole analyse vos revenus et vos dépenses avec des règles budgétaires transparentes, et vous montre le pouls des plus grandes entreprises du marché — tout est calculé par un moteur de règles Python, sans IA payante.</p>
+        <h1>Repérez les actions qui méritent votre attention.</h1>
+        <p>Boussole analyse 100 grandes entreprises cotées à partir de vraies données de marché (Yahoo Finance) et d'actualités récentes, pour vous aider à orienter vos recherches — pas à décider à votre place.</p>
       </div>
       <div class="hero-side">
         <p class="label">Entreprises suivies</p>
-        <p class="figure" id="compteur-entreprises">6</p>
-        <p class="sub">Apple, Microsoft, Google, Amazon, NVIDIA, Meta</p>
+        <p class="figure" id="compteur-entreprises">100</p>
+        <p class="sub">Mises à jour toutes les heures, tous secteurs confondus</p>
       </div>
     </section>
 
     <section class="block" id="marches">
       <div class="block-head">
-        <h2>Le pouls des marchés</h2>
-        <p class="note">Trajectoires simulées sur 12 mois, générées par le serveur Python à titre pédagogique.</p>
-      </div>
-      <div class="chart-toolbar">
-        <label class="toggle-ma">
-          <input type="checkbox" id="case-moyenne-mobile">
-          Afficher la moyenne mobile 3 mois
-        </label>
+        <h2>Les meilleurs scores du moment</h2>
+        <p class="note">Historique de prix réel sur les entreprises au score le plus élevé actuellement (voir méthodologie ci-dessous).</p>
       </div>
       <div class="chart-holder">
         <div id="chargement-marche">Chargement des données…</div>
@@ -284,18 +269,38 @@
 
     <section class="block" id="opportunites">
       <div class="block-head">
-        <h2>Opportunités &amp; anomalies</h2>
-        <p class="note">Détection statistique (z-score, ratio rendement/risque, moyennes mobiles) combinée à une analyse de vraies actualités récentes par thème de risque, calculée par le serveur.</p>
+        <h2>Classement des 100 entreprises</h2>
+        <p class="note">Score basé sur la performance réelle (1/3/6 mois), la volatilité et la tendance. Cliquez sur une ligne pour charger l'analyse d'actualités récentes de l'entreprise.</p>
       </div>
       <div class="panel">
+        <div class="filtres-tableau">
+          <input type="search" id="recherche-entreprise" placeholder="Rechercher une entreprise ou un symbole…">
+          <select id="filtre-secteur"><option value="">Tous les secteurs</option></select>
+          <select id="tri-colonne">
+            <option value="score">Trier par score</option>
+            <option value="rendement_3m">Trier par performance 3 mois</option>
+            <option value="rendement_6m">Trier par performance 6 mois</option>
+            <option value="volatilite_annualisee">Trier par volatilité</option>
+            <option value="nom">Trier par nom</option>
+          </select>
+        </div>
         <table class="ledger">
           <thead>
-            <tr><th>Entreprise</th><th>Statut</th><th>Variation</th><th>Analyse</th></tr>
+            <tr>
+              <th>Entreprise</th>
+              <th class="colonne-secteur">Secteur</th>
+              <th>Perf. 3 mois</th>
+              <th>Perf. 6 mois</th>
+              <th>Volatilité</th>
+              <th>Tendance</th>
+              <th>Score</th>
+            </tr>
           </thead>
           <tbody id="corps-tableau-opportunites">
-            <tr><td colspan="4" style="color:var(--text-muted);">Chargement de l'analyse…</td></tr>
+            <tr><td colspan="7" style="color:var(--text-muted);">Chargement des données de marché…</td></tr>
           </tbody>
         </table>
+        <div class="pagination" id="pagination"></div>
       </div>
     </section>
 
@@ -306,7 +311,6 @@
       </div>
 
       <div class="budget-grid">
-
         <form class="panel gold" id="formulaire-budget">
           <div class="champ champ-revenu">
             <label for="revenu">Revenu mensuel net (€)</label>
@@ -317,10 +321,8 @@
             <input type="number" id="epargne_actuelle" min="0" step="10" placeholder="0">
           </div>
           <p class="champ-aide">Sert à calculer votre fonds d'urgence et la projection d'épargne.</p>
-
           <hr class="separateur-form">
           <p class="sous-titre-form">Dépenses mensuelles par catégorie</p>
-
           <div class="grille-depenses">
             <div class="champ"><label for="logement">Logement</label><input type="number" id="logement" min="0" step="1" placeholder="0"></div>
             <div class="champ"><label for="alimentation">Alimentation</label><input type="number" id="alimentation" min="0" step="1" placeholder="0"></div>
@@ -329,7 +331,6 @@
             <div class="champ"><label for="loisirs">Loisirs</label><input type="number" id="loisirs" min="0" step="1" placeholder="0"></div>
             <div class="champ"><label for="abonnements">Abonnements</label><input type="number" id="abonnements" min="0" step="1" placeholder="0"></div>
           </div>
-
           <button type="submit" class="calculer" id="bouton-calculer">Analyser mon budget</button>
           <p class="erreur-api" id="erreur-api" style="display:none;"></p>
         </form>
@@ -340,34 +341,21 @@
           </div>
           <div id="resultats"></div>
         </div>
-
       </div>
     </section>
-
   </div>
 
   <footer class="wrap">
-    Boussole — démonstration pédagogique. Aucune donnée financière réelle n'est utilisée ; les analyses ne constituent pas un conseil financier professionnel.
+    Boussole — outil de screening pédagogique. Les données de marché sont réelles (Yahoo Finance) mais les scores et analyses ne constituent pas un conseil financier professionnel ni une garantie de performance.
   </footer>
 
 <script>
-  // =====================================================================
-  // CONFIGURATION — à adapter à votre déploiement
-  // =====================================================================
-  // Une fois votre backend déployé sur Render, remplacez cette URL par
-  // celle de votre Web Service (visible en haut du tableau de bord Render,
-  // généralement sous la forme "https://votre-service.onrender.com").
+  // Remplacez par l'URL de votre service Render une fois déployé.
   const API_URL = "https://moneyai2.onrender.com";
+  // Pour tester en local : const API_URL = "http://127.0.0.1:5000";
 
-  // Pour tester en local avant de déployer, commentez la ligne ci-dessus et
-  // décommentez celle-ci (après avoir lancé `python app.py` en local) :
-  // const API_URL = "http://127.0.0.1:5000";
+  const PALETTE = ["#3FA173", "#E8B860", "#7FA8D9", "#E2725B", "#B98CD9", "#5FC4D0", "#F0A868", "#6FCF97", "#D98BC9", "#8CA6D9"];
 
-  const PALETTE = ["#3FA173", "#E8B860", "#7FA8D9", "#E2725B", "#B98CD9", "#5FC4D0"];
-
-  // =====================================================================
-  // STATUT DE CONNEXION AU SERVEUR
-  // =====================================================================
   function definirStatutConnexion(etat, texte){
     const conteneur = document.getElementById("statut-connexion");
     const libelle = document.getElementById("statut-connexion-texte");
@@ -377,20 +365,18 @@
   }
 
   // =====================================================================
-  // 1. GRAPHIQUE DES MARCHÉS
+  // 1. GRAPHIQUE DES MEILLEURS SCORES
   // =====================================================================
   let graphiqueMarche = null;
-  let donneesMarcheCache = null;
 
   async function chargerMarches(){
     const zoneChargement = document.getElementById("chargement-marche");
     try{
-      const reponse = await fetch(`${API_URL}/api/marches`);
+      const reponse = await fetch(`${API_URL}/api/marches?limite=8`);
       if(!reponse.ok) throw new Error("Réponse serveur invalide");
       const donnees = await reponse.json();
-      donneesMarcheCache = donnees;
 
-      construireGraphique(donnees, false);
+      construireGraphique(donnees);
       zoneChargement.style.display = "none";
       definirStatutConnexion("ok", "Serveur connecté");
     }catch(erreur){
@@ -400,12 +386,12 @@
     }
   }
 
-  function construireGraphique(donnees, avecMoyenneMobile){
-    const jeuxDeDonnees = [];
+  function construireGraphique(donnees){
+    if(!donnees.entreprises || donnees.entreprises.length === 0) return;
 
-    donnees.entreprises.forEach((entreprise, index) => {
+    const jeuxDeDonnees = donnees.entreprises.map((entreprise, index) => {
       const couleur = PALETTE[index % PALETTE.length];
-      jeuxDeDonnees.push({
+      return {
         label: entreprise.nom,
         data: entreprise.prix,
         borderColor: couleur,
@@ -413,21 +399,8 @@
         borderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 4,
-        tension: 0.35,
-      });
-
-      if(avecMoyenneMobile){
-        jeuxDeDonnees.push({
-          label: `${entreprise.nom} (MM 3m)`,
-          data: entreprise.moyenne_mobile_3m,
-          borderColor: couleur,
-          borderWidth: 1.25,
-          borderDash: [4, 4],
-          pointRadius: 0,
-          tension: 0.35,
-          hidden: false,
-        });
-      }
+        tension: 0.25,
+      };
     });
 
     if(graphiqueMarche) graphiqueMarche.destroy();
@@ -441,10 +414,7 @@
         maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: {
-            position: "bottom",
-            labels: { color: "#90A2B7", usePointStyle: true, pointStyle: "circle", boxWidth: 7, font: { family: "'IBM Plex Sans', sans-serif", size: 11 } },
-          },
+          legend: { position: "bottom", labels: { color: "#90A2B7", usePointStyle: true, pointStyle: "circle", boxWidth: 7, font: { family: "'IBM Plex Sans', sans-serif", size: 11 } } },
           tooltip: {
             backgroundColor: "#1D3049", borderColor: "rgba(237,239,242,0.15)", borderWidth: 1,
             titleFont: { family: "'IBM Plex Mono', monospace" }, bodyFont: { family: "'IBM Plex Mono', monospace" },
@@ -452,54 +422,202 @@
           },
         },
         scales: {
-          x: { grid: { color: "rgba(237,239,242,0.06)" }, ticks: { color: "#90A2B7" } },
+          x: { grid: { color: "rgba(237,239,242,0.06)" }, ticks: { color: "#90A2B7", maxTicksLimit: 8 } },
           y: { grid: { color: "rgba(237,239,242,0.06)" }, ticks: { color: "#90A2B7" } },
         },
       },
     });
   }
 
-  document.getElementById("case-moyenne-mobile").addEventListener("change", (evenement) => {
-    if(donneesMarcheCache) construireGraphique(donneesMarcheCache, evenement.target.checked);
-  });
+  // =====================================================================
+  // 2. TABLEAU DES 100 ENTREPRISES
+  // =====================================================================
+  let toutesLesEntreprises = [];
+  let pageActuelle = 1;
+  const LIGNES_PAR_PAGE = 15;
 
-  // =====================================================================
-  // 2. TABLEAU OPPORTUNITÉS / ANOMALIES
-  // =====================================================================
   async function chargerOpportunites(){
     const corps = document.getElementById("corps-tableau-opportunites");
     try{
       const reponse = await fetch(`${API_URL}/api/opportunites`);
       if(!reponse.ok) throw new Error("Réponse serveur invalide");
       const donnees = await reponse.json();
+      toutesLesEntreprises = donnees.resultats || [];
 
-      corps.innerHTML = donnees.resultats.map((entreprise) => {
-        const signeClasse = entreprise.variation_mensuelle >= 0 ? "pos" : "neg";
-        const signeTexte = entreprise.variation_mensuelle >= 0 ? "+" : "";
-        return `
-          <tr>
-            <td><div class="entreprise-nom">${entreprise.nom}</div><div class="entreprise-sym">${entreprise.symbole}</div></td>
-            <td><span class="statut-chip ${entreprise.statut}">${entreprise.statut}</span></td>
-            <td class="variation ${signeClasse}">${signeTexte}${entreprise.variation_mensuelle} %</td>
-            <td class="commentaire">${entreprise.commentaire}</td>
-          </tr>
-        `;
-      }).join("");
+      remplirFiltreSecteur();
+      appliquerFiltresEtAfficher();
     }catch(erreur){
-      corps.innerHTML = `<tr><td colspan="4" style="color:var(--coral);">Impossible de contacter le serveur Python.</td></tr>`;
+      corps.innerHTML = `<tr><td colspan="7" style="color:var(--coral);">Impossible de contacter le serveur Python.</td></tr>`;
       console.error(erreur);
     }
   }
 
+  function remplirFiltreSecteur(){
+    const select = document.getElementById("filtre-secteur");
+    const secteurs = [...new Set(toutesLesEntreprises.map(e => e.secteur).filter(Boolean))].sort();
+    secteurs.forEach(secteur => {
+      const option = document.createElement("option");
+      option.value = secteur;
+      option.textContent = secteur;
+      select.appendChild(option);
+    });
+  }
+
+  function classeStatut(niveau){
+    if(niveau === "Potentiel haussier") return "haussier";
+    if(niveau === "Signal de prudence") return "prudence";
+    return "neutre";
+  }
+
+  function couleurScore(score){
+    if(score >= 68) return "#3FA173";
+    if(score >= 40) return "#E8B860";
+    return "#E2725B";
+  }
+
+  function formaterVariation(valeur){
+    if(valeur === null || valeur === undefined) return `<span class="variation" style="color:var(--text-muted)">n/d</span>`;
+    const classe = valeur >= 0 ? "pos" : "neg";
+    const signe = valeur >= 0 ? "+" : "";
+    return `<span class="variation ${classe}">${signe}${valeur.toFixed(1)} %</span>`;
+  }
+
+  function appliquerFiltresEtAfficher(){
+    const recherche = document.getElementById("recherche-entreprise").value.trim().toLowerCase();
+    const secteur = document.getElementById("filtre-secteur").value;
+    const tri = document.getElementById("tri-colonne").value;
+
+    let filtrees = toutesLesEntreprises.filter(e => {
+      const correspondRecherche = !recherche || e.nom.toLowerCase().includes(recherche) || e.symbole.toLowerCase().includes(recherche);
+      const correspondSecteur = !secteur || e.secteur === secteur;
+      return correspondRecherche && correspondSecteur;
+    });
+
+    filtrees.sort((a, b) => {
+      if(tri === "nom") return a.nom.localeCompare(b.nom);
+      const valA = a[tri], valB = b[tri];
+      if(valA === null || valA === undefined) return 1;
+      if(valB === null || valB === undefined) return -1;
+      return valB - valA;
+    });
+
+    pageActuelle = Math.min(pageActuelle, Math.max(1, Math.ceil(filtrees.length / LIGNES_PAR_PAGE)));
+    afficherTableau(filtrees);
+    afficherPagination(filtrees.length);
+  }
+
+  function afficherTableau(entreprises){
+    const corps = document.getElementById("corps-tableau-opportunites");
+    const debut = (pageActuelle - 1) * LIGNES_PAR_PAGE;
+    const page = entreprises.slice(debut, debut + LIGNES_PAR_PAGE);
+
+    if(page.length === 0){
+      corps.innerHTML = `<tr><td colspan="7" style="color:var(--text-muted);">Aucune entreprise ne correspond à votre recherche.</td></tr>`;
+      return;
+    }
+
+    corps.innerHTML = page.map(e => `
+      <tr class="ligne-entreprise" data-symbole="${e.symbole}" data-nom="${e.nom}">
+        <td>
+          <div class="entreprise-nom">${e.nom}</div>
+          <div class="entreprise-sym">${e.symbole} · ${e.prix_actuel} $</div>
+        </td>
+        <td class="colonne-secteur entreprise-secteur">${e.secteur || "—"}</td>
+        <td>${formaterVariation(e.rendement_3m)}</td>
+        <td>${formaterVariation(e.rendement_6m)}</td>
+        <td class="variation">${e.volatilite_annualisee !== null ? e.volatilite_annualisee.toFixed(1) + " %" : "n/d"}</td>
+        <td><span class="statut-chip ${classeStatut(e.niveau)}">${e.niveau}</span></td>
+        <td>
+          <span class="variation">${e.score}</span>
+          <div class="score-barre"><div class="fill" style="width:${e.score}%; background:${couleurScore(e.score)}"></div></div>
+        </td>
+      </tr>
+      <tr class="ligne-actualites" id="actu-${e.symbole}">
+        <td colspan="7"><div class="actu-contenu"></div></td>
+      </tr>
+    `).join("");
+
+    document.querySelectorAll(".ligne-entreprise").forEach(ligne => {
+      ligne.addEventListener("click", () => basculerActualites(ligne.dataset.symbole, ligne.dataset.nom));
+    });
+  }
+
+  async function basculerActualites(symbole, nom){
+    const ligne = document.getElementById(`actu-${symbole}`);
+    const contenu = ligne.querySelector(".actu-contenu");
+
+    if(ligne.classList.contains("visible")){
+      ligne.classList.remove("visible");
+      return;
+    }
+    document.querySelectorAll(".ligne-actualites.visible").forEach(l => l.classList.remove("visible"));
+    ligne.classList.add("visible");
+
+    if(contenu.dataset.charge === "1") return;
+
+    contenu.innerHTML = `<span class="actu-chargement">Recherche des actualités récentes pour ${nom}…</span>`;
+    try{
+      const reponse = await fetch(`${API_URL}/api/actualites/${symbole}`);
+      const donnees = await reponse.json();
+      if(!reponse.ok) throw new Error(donnees.erreur || "Erreur");
+
+      if(donnees.nb_articles_analyses === 0){
+        contenu.innerHTML = `<span style="color:var(--text-muted)">Aucune actualité récente trouvée pour ${nom} (14 derniers jours).</span>`;
+      }else{
+        const scoreTexte = donnees.score >= 0.1 ? "plutôt positif" : donnees.score <= -0.1 ? "plutôt négatif" : "neutre";
+        let html = `<div>Sentiment des actualités récentes : <strong>${scoreTexte}</strong> (${donnees.score.toFixed(2)}, confiance ${donnees.confiance}, ${donnees.nb_articles_analyses} articles analysés)</div>`;
+        if(donnees.categories_a_risque.length){
+          html += `<div style="margin-top:8px; color:var(--coral)">Thèmes de risque détectés : ${donnees.categories_a_risque.join(", ")}</div>`;
+        }
+        if(donnees.articles_a_risque.length){
+          html += `<ul class="actu-liste">${donnees.articles_a_risque.map(a => `
+            <li>
+              <a href="${a.lien}" target="_blank" rel="noopener">${a.titre}</a>
+              <div class="cats">${a.source || "Source inconnue"} — ${a.categories.join(", ")}</div>
+            </li>
+          `).join("")}</ul>`;
+        }
+        contenu.innerHTML = html;
+      }
+      contenu.dataset.charge = "1";
+    }catch(erreur){
+      contenu.innerHTML = `<span style="color:var(--coral)">Impossible de charger les actualités pour le moment.</span>`;
+      console.error(erreur);
+    }
+  }
+
+  function afficherPagination(total){
+    const conteneur = document.getElementById("pagination");
+    const nbPages = Math.max(1, Math.ceil(total / LIGNES_PAR_PAGE));
+    if(nbPages <= 1){ conteneur.innerHTML = ""; return; }
+
+    let boutons = `<button ${pageActuelle === 1 ? "disabled" : ""} data-page="${pageActuelle - 1}">←</button>`;
+    for(let i = 1; i <= nbPages; i++){
+      boutons += `<button class="${i === pageActuelle ? "actif" : ""}" data-page="${i}">${i}</button>`;
+    }
+    boutons += `<button ${pageActuelle === nbPages ? "disabled" : ""} data-page="${pageActuelle + 1}">→</button>`;
+    conteneur.innerHTML = boutons;
+
+    conteneur.querySelectorAll("button[data-page]").forEach(bouton => {
+      bouton.addEventListener("click", () => {
+        pageActuelle = parseInt(bouton.dataset.page, 10);
+        appliquerFiltresEtAfficher();
+      });
+    });
+  }
+
+  document.getElementById("recherche-entreprise").addEventListener("input", () => { pageActuelle = 1; appliquerFiltresEtAfficher(); });
+  document.getElementById("filtre-secteur").addEventListener("change", () => { pageActuelle = 1; appliquerFiltresEtAfficher(); });
+  document.getElementById("tri-colonne").addEventListener("change", () => { pageActuelle = 1; appliquerFiltresEtAfficher(); });
+
   // =====================================================================
-  // 3. MODULE BUDGET
+  // 3. MODULE BUDGET (inchangé)
   // =====================================================================
   const formulaire = document.getElementById("formulaire-budget");
   const boutonCalculer = document.getElementById("bouton-calculer");
   const zoneErreur = document.getElementById("erreur-api");
   const zonePlaceholder = document.getElementById("placeholder-resultats");
   const zoneResultats = document.getElementById("resultats");
-
   const CHAMPS_DEPENSES = ["logement", "alimentation", "transport", "autres_essentiels", "loisirs", "abonnements"];
 
   formulaire.addEventListener("submit", async (evenement) => {
@@ -523,11 +641,9 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ revenu, epargne_actuelle: epargneActuelle, depenses }),
       });
-
       const analyse = await reponse.json();
       if(!reponse.ok) throw new Error(analyse.erreur || "Erreur lors de l'analyse.");
-
-      afficherResultats(analyse, revenu);
+      afficherResultatsBudget(analyse, revenu);
     }catch(erreur){
       zoneErreur.textContent = erreur.message.includes("fetch")
         ? "Impossible de contacter le serveur Python. Vérifiez l'URL API_URL et que le service Render est démarré."
@@ -540,23 +656,22 @@
     }
   });
 
-  function couleurScore(score){
+  function couleurScoreBudget(score){
     if(score >= 80) return "#3FA173";
     if(score >= 60) return "#7FA8D9";
     if(score >= 40) return "#E8B860";
     return "#E2725B";
   }
 
-  function afficherResultats(analyse, revenu){
+  function afficherResultatsBudget(analyse, revenu){
     zonePlaceholder.style.display = "none";
-
     const soldeClasse = analyse.solde_mensuel >= 0 ? "pos" : "neg";
     const soldeSigne = analyse.solde_mensuel >= 0 ? "+" : "";
     const pourcentage = (valeur) => revenu > 0 ? Math.min((valeur / revenu) * 100, 100) : 0;
 
     const rayon = 32, circonference = 2 * Math.PI * rayon;
     const decalage = circonference * (1 - analyse.score_sante / 100);
-    const couleur = couleurScore(analyse.score_sante);
+    const couleur = couleurScoreBudget(analyse.score_sante);
 
     const mois = analyse.fonds_urgence.mois_couverts;
     const objectifMois = analyse.fonds_urgence.objectif_mois;
@@ -567,8 +682,7 @@
         <div class="score-jauge">
           <svg width="84" height="84" viewBox="0 0 84 84">
             <circle class="fond" cx="42" cy="42" r="${rayon}"></circle>
-            <circle class="valeur" cx="42" cy="42" r="${rayon}" stroke="${couleur}"
-              stroke-dasharray="${circonference}" stroke-dashoffset="${decalage}"></circle>
+            <circle class="valeur" cx="42" cy="42" r="${rayon}" stroke="${couleur}" stroke-dasharray="${circonference}" stroke-dashoffset="${decalage}"></circle>
           </svg>
           <div class="nombre">${analyse.score_sante}</div>
         </div>
@@ -577,34 +691,26 @@
           <p class="sous">Score de santé financière</p>
         </div>
       </div>
-
       <div class="solde-ligne">
         <span class="label">Solde mensuel</span>
         <span class="valeur ${soldeClasse}">${soldeSigne}${analyse.solde_mensuel.toFixed(0)} €</span>
       </div>
-
       <p class="sous-section-titre">Répartition 50/30/20</p>
       <div class="repartition">
         ${construireLigneRepartition("Besoins essentiels", analyse.repartition.besoins, analyse.cibles_50_30_20.besoins, "besoins", pourcentage)}
         ${construireLigneRepartition("Envies / confort", analyse.repartition.envies, analyse.cibles_50_30_20.envies, "envies", pourcentage)}
         ${construireLigneRepartition("Épargne", analyse.repartition.epargne, analyse.cibles_50_30_20.epargne, "epargne", pourcentage)}
       </div>
-
       <p class="sous-section-titre">Fonds d'urgence</p>
       <div class="fonds-urgence">
-        <div class="top">
-          <span>${mois.toFixed(1)} mois de dépenses couverts</span>
-          <span class="val">Objectif : ${objectifMois} mois</span>
-        </div>
+        <div class="top"><span>${mois.toFixed(1)} mois de dépenses couverts</span><span class="val">Objectif : ${objectifMois} mois</span></div>
         <div class="barre"><div class="fill urgence" style="width:${progressionUrgence}%"></div></div>
       </div>
-
       <p class="sous-section-titre">Projection d'épargne (si vous suivez la recommandation)</p>
       <div class="projection">
         <div class="carte"><div class="label">Dans 6 mois</div><div class="valeur">${analyse.projection_epargne.dans_6_mois.toFixed(0)} €</div></div>
         <div class="carte"><div class="label">Dans 12 mois</div><div class="valeur">${analyse.projection_epargne.dans_12_mois.toFixed(0)} €</div></div>
       </div>
-
       ${analyse.diagnostics_categories.length ? `
         <p class="sous-section-titre">Diagnostic par catégorie</p>
         <table class="diagnostics">
@@ -621,10 +727,8 @@
           </tbody>
         </table>
       ` : ""}
-
       ${analyse.alertes.length ? `<ul class="liste-messages alertes">${analyse.alertes.map((t) => `<li>${t}</li>`).join("")}</ul>` : ""}
       ${analyse.conseils.length ? `<ul class="liste-messages conseils">${analyse.conseils.map((t) => `<li>${t}</li>`).join("")}</ul>` : ""}
-
       <div class="recommandation"><strong>Recommandation —</strong> ${analyse.recommandation_epargne}</div>
     `;
 
@@ -635,10 +739,7 @@
   function construireLigneRepartition(nom, valeur, cible, classe, pourcentage){
     return `
       <div class="repartition-item">
-        <div class="top">
-          <span>${nom}</span>
-          <span class="val">${valeur.toFixed(0)} € <span style="opacity:0.6">/ cible ${cible.toFixed(0)} €</span></span>
-        </div>
+        <div class="top"><span>${nom}</span><span class="val">${valeur.toFixed(0)} € <span style="opacity:0.6">/ cible ${cible.toFixed(0)} €</span></span></div>
         <div class="barre"><div class="fill ${classe}" style="width:${pourcentage(valeur)}%"></div></div>
       </div>
     `;
